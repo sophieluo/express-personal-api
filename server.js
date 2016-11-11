@@ -19,7 +19,8 @@ app.use(function(req, res, next) {
  * DATABASE *
  ************/
 
-// var db = require('./models');
+// connect to db models
+ var db = require('./models');
 
 /**********
  * ROUTES *
@@ -45,16 +46,28 @@ app.get('/', function homepage(req, res) {
 app.get('/api', function api_index(req, res) {
   // TODO: Document all your api endpoints below
   res.json({
-    woopsIForgotToDocumentAllMyEndpoints: true, // CHANGE ME ;)
-    message: "Welcome to my personal api! Here's what you need to know!",
-    documentationUrl: "https://github.com/example-username/express_self_api/README.md", // CHANGE ME
-    baseUrl: "http://YOUR-APP-NAME.herokuapp.com", // CHANGE ME
+    woopsIForgotToDocumentAllMyEndpoints: false,
+    message: "Welcome to Sophie's personal api! Here's what you need to know!",
+    documentationUrl: "https://github.com/sophieluo/express-personal-api/blob/master/README.md",
+    baseUrl: "http://shielded-peak-37764.herokuapp.com",
     endpoints: [
       {method: "GET", path: "/api", description: "Describes all available endpoints"},
-      {method: "GET", path: "/api/profile", description: "Data about me"}, // CHANGE ME
-      {method: "POST", path: "/api/campsites", description: "E.g. Create a new campsite"} // CHANGE ME
+      {method: "GET", path: "/api/questions", description: "Questions posted on my site"},
+      {method: "GET", path: "/api/users", description: "Users using my site to answer questions"},
+      {method: "GET", path: "/api/answers", description: "Answers to questions"}, //this should be embedded in answers
     ]
   })
+});
+
+//get all questions
+app.get('/api/questions', function (req, res) {
+  console.log("hello")
+  // send all questions as JSON response
+  // db.Question.find().populate('user')
+  //   .exec(function(err, questions) {
+  //     if (err) { return console.log("index error: " + err); }
+  //     res.json(questions);
+  // });
 });
 
 /**********
