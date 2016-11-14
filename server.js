@@ -52,6 +52,7 @@ app.get('/api', function api_index(req, res) {
     baseUrl: "http://shielded-peak-37764.herokuapp.com",
     endpoints: [
       {method: "GET", path: "/api", description: "Describes all available endpoints"},
+      {method: "GET", path: "/api/profile", description: "Profile of creator"},
       {method: "GET", path: "/api/questions", description: "Questions posted on my site"},
       {method: "GET", path: "/api/users", description: "Users using my site to answer questions"},
       {method: "GET", path: "/api/answers", description: "Answers to questions"}, //this should be embedded in answers
@@ -59,16 +60,79 @@ app.get('/api', function api_index(req, res) {
   })
 });
 
+//get profile
+app.get('/api/profile',  function (req, res) {
+  res.json({
+    name: 'Sophie Luo',
+    githubLink: 'https://github.com/sophieluo',
+    githubProfileImage: 'https://github.com/settings/profile',
+    personalSiteLink: 'https://sophieluo.github.io',
+    currentCity: 'San Francisco',
+    pets: 'none'
+  })
+});
+
 //get all questions
 app.get('/api/questions', function (req, res) {
-  console.log("hello")
   // send all questions as JSON response
-  // db.Question.find().populate('user')
-  //   .exec(function(err, questions) {
-  //     if (err) { return console.log("index error: " + err); }
-  //     res.json(questions);
-  // });
+  db.Question.find().populate('user')
+     .exec(function(err, questions) {
+      if (err) { return console.log("index error: " + err); }
+      res.json(questions);
+  });
 });
+
+//get one question by it's id
+app.get('/api/questions/:id', function (req, res) {
+  var questionId = req.params.id;
+  db.Question.findOne({_id: questionId}, function(err, data) {
+    res.json(data);
+  });
+});
+
+//get all users
+app.get('/api/users', function (req, res) {
+  // send all questions as JSON response
+  db.User.find().populate('question')
+     .exec(function(err, users) {
+      if (err) { return console.log("index error: " + err); }
+      res.json(users);
+  });
+})
+
+//create answer enbedded in question
+app.post('/api/questions', function (req, res) {
+
+  var newQuestion = new db.Question({
+    name: req.body.name,
+    user: req.body.user,
+  });
+
+  db.User.findOne({name: req.body.user}, function (err, foundUser) {
+    if (err) {
+      return console.log(err);
+    }
+    newQuestion.user = foundUser;
+    newQuestion.save(function (err, question) {
+      res.json(question);
+      console.log(question)
+    });
+
+  });
+});
+
+
+
+//update answer enbedded in question
+// app.put('/api/questions/:questionId/answers/:id', function (req, res) {
+//   var questionId = req.params.questionId;
+//   var answerId = req.params.id;
+//
+//   Question.findOne({_id: userId}, function (err, foundQuestion) {
+//     var foundAnswer = foundQuestion.answers.id(answerId);
+//     foundAnswer.name = req.body.answerText;
+//   }
+// }
 
 /**********
  * SERVER *
