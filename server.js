@@ -54,8 +54,10 @@ app.get('/api', function api_index(req, res) {
       {method: "GET", path: "/api", description: "Describes all available endpoints"},
       {method: "GET", path: "/api/profile", description: "Profile of creator"},
       {method: "GET", path: "/api/questions", description: "Questions posted on my site"},
-      {method: "GET", path: "/api/users", description: "Users using my site to answer questions"},
-      {method: "GET", path: "/api/answers", description: "Answers to questions"}, //this should be embedded in answers
+      {method: "GET", path: "/api/questions/:id", description: "Look up one particular question by question id"},
+      {method: "GET", path: "/api/users", description: "All user profiles"},
+      {method: "POST", path: "/api/questions", description: "Ask new questions"},
+      {method: "POST", path: "api/questions/:question_id/answers", description: "Post new answers to questions"}
     ]
   })
 });
@@ -100,7 +102,7 @@ app.get('/api/users', function (req, res) {
   });
 })
 
-//create answer enbedded in question
+//create a question
 app.post('/api/questions', function (req, res) {
 
   var newQuestion = new db.Question({
@@ -121,18 +123,29 @@ app.post('/api/questions', function (req, res) {
   });
 });
 
-
-
-//update answer enbedded in question
-// app.put('/api/questions/:questionId/answers/:id', function (req, res) {
-//   var questionId = req.params.questionId;
-//   var answerId = req.params.id;
-//
-//   Question.findOne({_id: userId}, function (err, foundQuestion) {
-//     var foundAnswer = foundQuestion.answers.id(answerId);
-//     foundAnswer.name = req.body.answerText;
-//   }
-// }
+// create an answer embedded in a question
+app.post('/api/questions/:question_id/answers', function (req, res) {
+  // Get book id from url params (`req.params`)
+  var questionId = req.params.question_id;
+  db.Question.findById(questionId)
+    .populate('user')
+    .exec(function(err, foundQuestion) {
+      console.log(foundQuestion);
+      if (err) {
+        res.send(err);
+      } else if (foundQuestion === null) {
+        // Is this the same as checking if the foundBook is undefined?
+        res.send("No Question found by this ID");
+      } else {
+        // push character into characters array
+        var postAnswer = foundQuestion.answers
+        postAnswer.push(req.body);
+        // save the book with the new character
+        foundQuestion.save();
+        res.json(foundQuestion);
+      }
+    });
+});
 
 /**********
  * SERVER *

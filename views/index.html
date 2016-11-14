@@ -46,9 +46,19 @@
             <p>
               <b>{{name}}</b>
               asked by {{user.name}}
-              <button type="button" name="button" class="deleteBtn btn btn-danger pull-right" data-id={{_id}}>Delete</button>
+              <br>
+              <b>Answers:</b>
+              {{#each answers}}
+                {{name}}
+              {{/each}}
             </p>
-          {{/each}}
+            <form class="form-inline" id="addAnwserForm" data-id={{_id}}>
+              <div class="form-group">
+                <input type="text" class="form-control" name="name" placeholder="Add you answer">
+              </div>
+              <button type="submit" class="btn btn-default">Post My Answer</button>
+            </form>
+            {{/each}}
           </script>
         </div>
       </div>
